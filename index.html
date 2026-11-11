@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrowdChek — Cek keramaian sebelum berangkat</title>
+  <meta name="description" content="CrowdChek menampilkan tingkat keramaian lokasi publik secara real-time dari laporan warga.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="site-header"></div>
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">Pantauan keramaian real-time</span>
+          <h1>Tahu seberapa ramai, <em>sebelum</em> kamu berangkat.</h1>
+          <p class="lead">CrowdChek mengumpulkan laporan dari warga untuk menunjukkan kondisi mal, stasiun, pasar, dan tempat wisata saat ini — supaya waktumu tidak habis di antrean.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="dashboard.html">Buka dashboard</a>
+            <a class="btn btn-ghost" href="search.html">Cari lokasi</a>
+          </div>
+          <div class="hero-stats" id="heroStats"></div>
+        </div>
+        <aside class="live-card" aria-label="Contoh kondisi keramaian saat ini">
+          <h3><span class="pulse" aria-hidden="true"></span> Sedang terjadi sekarang</h3>
+          <div id="liveRows"></div>
+          <a href="dashboard.html" class="small" style="color:#9db5ff;font-weight:700">Lihat semua lokasi →</a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="fitur">
+      <div class="container">
+        <span class="eyebrow">Fitur utama</span>
+        <h2>Semua yang kamu perlukan untuk menghindari kerumunan</h2>
+        <div class="grid g3" style="margin-top:28px">
+          <article class="card feature"><div class="ic">📊</div><h3>Dashboard</h3><p>Peta dan ringkasan lokasi paling padat dan paling sepi, diperbarui otomatis.</p></article>
+          <article class="card feature"><div class="ic">🔎</div><h3>Pencarian lokasi</h3><p>Cari berdasarkan nama, kategori, atau tingkat keramaian, lalu urutkan sesuai kebutuhan.</p></article>
+          <article class="card feature"><div class="ic">📣</div><h3>Laporan keramaian</h3><p>Kirim laporan dalam 10 detik: pilih level, tambahkan catatan, selesai.</p></article>
+          <article class="card feature"><div class="ic">📈</div><h3>Statistik keramaian</h3><p>Pola per jam dan rekomendasi waktu terbaik untuk berkunjung ke setiap lokasi.</p></article>
+          <article class="card feature"><div class="ic">🔐</div><h3>Login &amp; register</h3><p>Akun pengguna untuk melapor, menyimpan riwayat laporan, dan menjaga kualitas data.</p></article>
+          <article class="card feature"><div class="ic">🛠️</div><h3>Admin panel</h3><p>Kelola lokasi, moderasi laporan, dan atur pengguna dalam satu tempat.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:8px">
+      <div class="container">
+        <span class="eyebrow">Cara kerja</span>
+        <h2>Tiga langkah, tanpa ribet</h2>
+        <div class="steps" style="margin-top:28px">
+          <div class="step"><h3>Cari lokasi</h3><p>Ketik nama tempat atau jelajahi peta untuk melihat level keramaian saat ini.</p></div>
+          <div class="step"><h3>Putuskan waktu</h3><p>Lihat grafik pola per jam dan pilih waktu berkunjung yang paling nyaman.</p></div>
+          <div class="step"><h3>Bantu yang lain</h3><p>Sudah di lokasi? Laporkan kondisi sebenarnya agar data semakin akurat.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-band">
+          <div><h2>Jadi bagian dari pantauan warga</h2><p>Daftar gratis dan mulai kirim laporan keramaian pertamamu.</p></div>
+          <a class="btn" href="login.html?tab=register">Daftar sekarang</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const { esc, badge, srcText, pad } = CC.ui;
+      const places = CC.places();
+      const top = places.map(p => ({ p, c: CC.crowd(p) })).sort((a, b) => b.c.score - a.c.score).slice(0, 3);
+      document.getElementById('liveRows').innerHTML = top.map(({ p, c }) => `
+        <div class="live-row"><span class="meter m${c.level}" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <div class="nm"><b>${esc(p.name)}</b><span>${srcText(c)}</span></div>${badge(c.level)}</div>`).join('');
+      const today = CC.visibleReports().filter(r => Date.now() - r.ts < 864e5).length;
+      document.getElementById('heroStats').innerHTML = `
+        <div><b>${places.length}</b><span>lokasi dipantau</span></div>
+        <div><b>${today}</b><span>laporan 24 jam terakhir</span></div>
+        <div><b>${CC.users().filter(u => u.active).length}</b><span>pengguna aktif</span></div>`;
+    });
+  </script>
+</body>
+</html>

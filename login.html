@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Masuk &amp; Daftar — CrowdChek</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="auth">
+    <aside class="auth-side">
+      <span class="logo-mark" aria-hidden="true" style="transform:scale(1.6);transform-origin:left bottom"><i></i><i></i><i></i><i></i></span>
+      <h2>Bantu semua orang menghindari antrean.</h2>
+      <p>Satu akun untuk melapor, memantau, dan menyimpan riwayat kontribusimu.</p>
+      <ul><li>Laporkan kondisi dalam hitungan detik</li><li>Lihat riwayat laporanmu</li><li>Gratis, tanpa iklan</li></ul>
+    </aside>
+    <section class="auth-main">
+      <div class="auth-box">
+        <div class="tabs" role="tablist">
+          <button role="tab" id="tabLogin" aria-selected="true" aria-controls="panelLogin">Masuk</button>
+          <button role="tab" id="tabReg" aria-selected="false" aria-controls="panelReg">Daftar</button>
+        </div>
+
+        <div id="panelLogin" role="tabpanel" aria-labelledby="tabLogin">
+          <h1 style="font-size:1.7rem">Selamat datang kembali</h1>
+          <div class="demo-box">Akun demo — Admin: <button type="button" data-fill="admin@crowdchek.id|admin123">admin@crowdchek.id</button> ·
+            Pengguna: <button type="button" data-fill="user@crowdchek.id|user123">user@crowdchek.id</button></div>
+          <form id="loginForm" novalidate>
+            <div class="field" id="lfEmail"><label for="lEmail">Email</label>
+              <input class="input" id="lEmail" type="email" autocomplete="email" placeholder="nama@email.com">
+              <div class="err">Masukkan email yang valid.</div></div>
+            <div class="field" id="lfPass"><label for="lPass">Kata sandi</label>
+              <div class="input-wrap"><input class="input" id="lPass" type="password" autocomplete="current-password" placeholder="Kata sandi">
+                <button type="button" class="toggle" data-toggle="lPass">Tampilkan</button></div>
+              <div class="err">Kata sandi wajib diisi.</div></div>
+            <div class="err" id="lError" style="display:none;margin:-4px 0 12px;font-size:.9rem"></div>
+            <button class="btn btn-primary btn-block" type="submit">Masuk</button>
+          </form>
+        </div>
+
+        <div id="panelReg" role="tabpanel" aria-labelledby="tabReg" hidden>
+          <h1 style="font-size:1.7rem">Buat akun baru</h1>
+          <p class="muted">Cukup satu menit untuk mulai melapor.</p>
+          <form id="regForm" novalidate>
+            <div class="field" id="rfName"><label for="rName">Nama lengkap</label>
+              <input class="input" id="rName" autocomplete="name" placeholder="Nama lengkap">
+              <div class="err">Nama minimal 3 karakter.</div></div>
+            <div class="field" id="rfEmail"><label for="rEmail">Email</label>
+              <input class="input" id="rEmail" type="email" autocomplete="email" placeholder="nama@email.com">
+              <div class="err">Masukkan email yang valid.</div></div>
+            <div class="field" id="rfPass"><label for="rPass">Kata sandi</label>
+              <div class="input-wrap"><input class="input" id="rPass" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
+                <button type="button" class="toggle" data-toggle="rPass">Tampilkan</button></div>
+              <div class="hint" id="strength"></div>
+              <div class="err">Kata sandi minimal 6 karakter.</div></div>
+            <div class="field" id="rfPass2"><label for="rPass2">Ulangi kata sandi</label>
+              <input class="input" id="rPass2" type="password" autocomplete="new-password" placeholder="Ulangi kata sandi">
+              <div class="err">Kata sandi tidak sama.</div></div>
+            <div class="field" id="rfTerms"><label class="check"><input type="checkbox" id="rTerms"> <span>Saya setuju untuk melapor dengan jujur dan tidak menyalahgunakan layanan.</span></label>
+              <div class="err">Anda harus menyetujui ketentuan ini.</div></div>
+            <div class="err" id="rError" style="display:none;margin:-4px 0 12px;font-size:.9rem"></div>
+            <button class="btn btn-primary btn-block" type="submit">Daftar</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

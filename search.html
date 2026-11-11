@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cari Lokasi — CrowdChek</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="container">
+    <div class="page-head">
+      <span class="eyebrow">Pencarian lokasi</span>
+      <h1 style="font-size:clamp(1.7rem,3.4vw,2.4rem)">Mau ke mana hari ini?</h1>
+      <p>Cari tempat, lalu lihat seberapa ramai sebelum kamu berangkat.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:22px">
+      <form class="search-box" role="search" onsubmit="return false">
+        <span aria-hidden="true" id="sIcon"></span>
+        <label class="sr-only" for="q">Cari nama atau alamat lokasi</label>
+        <input class="input" id="q" type="search" placeholder="Cari nama atau alamat, mis. “Grand Indonesia”" autocomplete="off">
+      </form>
+      <div class="toolbar" style="margin:16px 0 0">
+        <div class="chips" id="catChips" role="group" aria-label="Kategori"></div>
+      </div>
+      <div class="toolbar" style="margin:14px 0 0">
+        <div class="chips" id="lvChips" role="group" aria-label="Tingkat keramaian"></div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <label for="sort" class="small muted" style="font-weight:600">Urutkan</label>
+          <select id="sort" class="select" style="width:auto;padding:8px 12px">
+            <option value="busy">Terpadat</option><option value="quiet">Tersepi</option><option value="name">Nama A–Z</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <p class="muted small" id="count" aria-live="polite"></p>
+    <div class="grid g3" id="results"></div>
+    <div class="empty card" id="empty" hidden>
+      <div class="big">🔍</div><h3>Lokasi tidak ditemukan</h3>
+      <p class="muted">Coba kata kunci lain atau hapus filter yang aktif.</p>
+      <button class="btn btn-ghost" id="resetBtn">Atur ulang filter</button>
+    </div>
+  </main>
+  <div id="site-footer"></div>
+
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/search.js"></script>
+</body>
+</html>

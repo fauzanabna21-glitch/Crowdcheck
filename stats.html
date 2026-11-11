@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Statistik Keramaian — CrowdChek</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="container">
+    <div class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
+      <div>
+        <span class="eyebrow">Statistik keramaian</span>
+        <h1 style="font-size:clamp(1.7rem,3.4vw,2.4rem)">Kapan waktu terbaik berkunjung?</h1>
+        <p>Pola keramaian per jam dan perbandingan antar lokasi.</p>
+      </div>
+      <div style="min-width:240px">
+        <label class="label" for="placeSel">Pilih lokasi</label>
+        <select class="select" id="placeSel"></select>
+      </div>
+    </div>
+
+    <section class="grid g4 kpis" id="kpis" aria-label="Ringkasan lokasi"></section>
+
+    <section class="grid g2" style="margin-top:20px">
+      <div class="card">
+        <div class="card-head"><h3>Pola keramaian per jam</h3><span class="small muted" id="pName"></span></div>
+        <div class="chart-box"><canvas id="cHour" role="img" aria-label="Grafik garis pola keramaian per jam"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Peringkat keramaian saat ini</h3></div>
+        <div class="chart-box"><canvas id="cRank" role="img" aria-label="Grafik batang peringkat keramaian lokasi"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Sebaran level lokasi</h3></div>
+        <div class="chart-box"><canvas id="cDist" role="img" aria-label="Grafik donat sebaran level keramaian"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Laporan masuk 7 hari terakhir</h3></div>
+        <div class="chart-box"><canvas id="cDays" role="img" aria-label="Grafik batang jumlah laporan per hari"></canvas></div>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+
+  <script src="js/vendor/chart.umd.min.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/stats.js"></script>
+</body>
+</html>
