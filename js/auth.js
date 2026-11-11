@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+CC.onReady(function () {
   const { $, $$, qs, toast } = CC.ui;
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -25,21 +25,17 @@ document.addEventListener('DOMContentLoaded', function () {
     i.type = show ? 'text' : 'password'; b.textContent = show ? 'Sembunyikan' : 'Tampilkan';
   }));
 
-  /* ---- akun demo ---- */
-  $$('[data-fill]').forEach(b => b.addEventListener('click', () => {
-    const [e, p] = b.dataset.fill.split('|'); $('#lEmail').value = e; $('#lPass').value = p;
-    $('#lfEmail').classList.remove('invalid'); $('#lfPass').classList.remove('invalid'); $('#lError').style.display = 'none';
-  }));
-
   const mark = (id, bad) => $('#' + id).classList.toggle('invalid', bad);
 
   /* ---- login ---- */
-  $('#loginForm').addEventListener('submit', e => {
+  $('#loginForm').addEventListener('submit', async e => {
     e.preventDefault();
     const em = $('#lEmail').value, pw = $('#lPass').value;
     mark('lfEmail', !emailRe.test(em.trim())); mark('lfPass', !pw);
     if (!emailRe.test(em.trim()) || !pw) return;
-    const r = CC.login(em, pw);
+    const btn = $('#loginForm button[type=submit]'); btn.disabled = true;
+    const r = await CC.login(em, pw);
+    btn.disabled = false;
     if (!r.ok) { const el = $('#lError'); el.textContent = r.msg; el.style.display = 'block'; return; }
     goto(r.user);
   });
@@ -52,13 +48,16 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* ---- register ---- */
-  $('#regForm').addEventListener('submit', e => {
+  $('#regForm').addEventListener('submit', async e => {
     e.preventDefault();
     const n = $('#rName').value.trim(), em = $('#rEmail').value.trim(), p1 = $('#rPass').value, p2 = $('#rPass2').value, t = $('#rTerms').checked;
     const bad = { rfName: n.length < 3, rfEmail: !emailRe.test(em), rfPass: p1.length < 6, rfPass2: p1 !== p2 || !p2, rfTerms: !t };
     Object.entries(bad).forEach(([k, v]) => mark(k, v));
     if (Object.values(bad).some(Boolean)) return;
-    const r = CC.register(n, em, p1);
+    const btn = $('#regForm button[type=submit]'); btn.disabled = true;
+    const r = await CC.register(n, em, p1);
+    btn.disabled = false;
+    if (r.needConfirm) { toast(r.msg); tab('login'); return; }
     if (!r.ok) { const el = $('#rError'); el.textContent = r.msg; el.style.display = 'block'; return; }
     goto(r.user);
   });

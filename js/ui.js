@@ -96,7 +96,7 @@
           <div><h4>Fitur</h4><ul><li><a href="dashboard.html">Dashboard</a></li><li><a href="search.html">Cari lokasi</a></li><li><a href="report.html">Laporan keramaian</a></li><li><a href="stats.html">Statistik</a></li></ul></div>
           <div><h4>Akun</h4><ul><li><a href="login.html">Masuk</a></li><li><a href="login.html?tab=register">Daftar</a></li></ul></div>
         </div>
-        <div class="copy">© 2026 CrowdChek — Proyek UTS Pemrograman Web B. Data pada situs ini adalah data contoh yang disimpan di browser.</div>
+        <div class="copy">© 2026 CrowdChek — Proyek UTS Pemrograman Web B. Laporan keramaian berasal dari warga dan disimpan di server.</div>
       </div></footer>`;
   }
 
@@ -198,5 +198,5 @@
 
   global.CC.ui = { esc, $, $$, qs, debounce, timeAgo, fmtDate, pad, initials, badge, meter, srcText, ICONS, toast, modal, confirmBox, nextUrl, openPlace };
 
-  document.addEventListener('DOMContentLoaded', () => { renderHeader(); renderFooter(); });
+  CC.onReady(() => { renderHeader(); renderFooter(); });
 })(window);

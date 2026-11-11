@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+CC.onReady(function () {
   const { $, esc, badge, meter, srcText, timeAgo, initials, openPlace } = CC.ui;
   let cat = 'all';
   let selected = null;
@@ -24,11 +24,12 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderKpis(all) {
     const day = CC.visibleReports().filter(r => Date.now() - r.ts < 864e5).length;
     const sorted = all.slice().sort((a, b) => b.c.score - a.c.score);
-    const busy = sorted[0], quiet = sorted[sorted.length - 1];
+    const none = { p: { name: '—' }, c: { level: 1 } };
+    const busy = sorted[0] || none, quiet = sorted[sorted.length - 1] || none;
     const crowded = all.filter(x => x.c.level >= 3).length;
     $('#kpis').innerHTML = `
       <div class="card kpi"><span class="k">Lokasi dipantau</span><span class="v">${all.length}</span><span class="s">${crowded} lokasi ramai/padat</span></div>
-      <div class="card kpi"><span class="k">Laporan 24 jam</span><span class="v">${day}</span><span class="s">dari ${CC.users().filter(u => u.active).length} pengguna aktif</span></div>
+      <div class="card kpi"><span class="k">Laporan 24 jam</span><span class="v">${day}</span><span class="s">dari ${CC.activeUserCount()} pengguna aktif</span></div>
       <div class="card kpi"><span class="k">Terpadat</span><span class="v" style="font-size:1.2rem;padding:.4em 0">${esc(busy.p.name)}</span><span class="s">${badge(busy.c.level)}</span></div>
       <div class="card kpi"><span class="k">Tersepi</span><span class="v" style="font-size:1.2rem;padding:.4em 0">${esc(quiet.p.name)}</span><span class="s">${badge(quiet.c.level)}</span></div>`;
   }
@@ -90,5 +91,10 @@ document.addEventListener('DOMContentLoaded', function () {
     renderKpis(all); renderMap(); renderLists(all); renderFeed(); renderCatBars(all);
   }
   render();
-  setInterval(render, 30000); // segarkan tiap 30 detik
+  setInterval(render, 30000); // segarkan tiap 30 detik (memperbarui teks "x menit lalu")
+  let t = null;
+  CC.onChange(ev => {            // laporan baru langsung memperbarui peta, daftar, dan feed
+    if (ev.type === 'status') return;
+    clearTimeout(t); t = setTimeout(render, 250);
+  });
 });

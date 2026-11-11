@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+CC.onReady(function () {
   const { $, esc, qs, pad, badge } = CC.ui;
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const LV = { 1: css('--lv1'), 2: css('--lv2'), 3: css('--lv3'), 4: css('--lv4') };
