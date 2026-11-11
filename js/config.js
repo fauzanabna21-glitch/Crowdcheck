@@ -5,6 +5,6 @@
    Kunci ini memang publik; keamanan data dijaga oleh aturan RLS di supabase/schema.sql.
    JANGAN pernah memasukkan "service_role" key di sini. */
 window.CC_CONFIG = {
-  SUPABASE_URL: 'ISI_DENGAN_PROJECT_URL',
-  SUPABASE_ANON_KEY: 'ISI_DENGAN_ANON_KEY'
+  SUPABASE_URL: 'https://supabase.com/dashboard/project/gzhgdjzmiultsrxvrzaj/settings/api-keys',
+  SUPABASE_ANON_KEY: 'sb_publishable_AncA_uS4iSg0WQNp3cm6zw_xiAzrrD_'
 };
