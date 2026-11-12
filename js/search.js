@@ -1,4 +1,4 @@
-CC.onReady(function () {
+document.addEventListener('DOMContentLoaded', function () {
   const { $, $$, esc, qs, debounce, badge, meter, srcText, ICONS, openPlace } = CC.ui;
   const state = { q: qs('q') || '', cat: 'all', lv: 0, sort: 'busy' };
 

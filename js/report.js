@@ -1,4 +1,4 @@
-CC.onReady(function () {
+document.addEventListener('DOMContentLoaded', function () {
   const { $, $$, esc, qs, badge, timeAgo, toast, ICONS, nextUrl } = CC.ui;
   const user = CC.currentUser();
   const COOLDOWN = 10 * 60000; // 1 laporan per lokasi per 10 menit
@@ -51,7 +51,7 @@ CC.onReady(function () {
     f.addEventListener('submit', onSubmit);
   }
 
-  async function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
     const placeId = $('#place').value;
     const lv = ($('input[name=level]:checked') || {}).value;
@@ -64,15 +64,12 @@ CC.onReady(function () {
       const left = Math.ceil((COOLDOWN - (Date.now() - last.ts)) / 60000);
       toast(`Kamu baru saja melapor di lokasi ini. Coba lagi ${left} menit lagi.`, 'err'); return;
     }
-    const btn = $('#rf button[type=submit]'); btn.disabled = true;
-    try {
-      await CC.addReport({
-        placeId, level: +lv,
-        wait: $('#wait').value ? +$('#wait').value : null,
-        tags: $$('input[name=tag]:checked').map(i => i.value),
-        note: $('#note').value.trim()
-      });
-    } catch (err) { btn.disabled = false; toast(err.message, 'err'); return; }
+    CC.addReport({
+      placeId, userId: user.id, userName: user.name, level: +lv,
+      wait: $('#wait').value ? +$('#wait').value : null,
+      tags: $$('input[name=tag]:checked').map(i => i.value),
+      note: $('#note').value.trim()
+    });
     const p = CC.place(placeId);
     toast('Laporan terkirim. Terima kasih!');
     $('#formCard').innerHTML = `<div class="success"><div class="ok">${ICONS.check}</div>

@@ -1,4 +1,4 @@
-CC.onReady(function () {
+document.addEventListener('DOMContentLoaded', function () {
   const { $, $$, esc, badge, timeAgo, fmtDate, toast, modal, confirmBox, nextUrl, ICONS, initials } = CC.ui;
   const me = CC.currentUser();
   const root = $('#adminRoot');
@@ -14,7 +14,6 @@ CC.onReady(function () {
 
   let tab = 'overview';
   let repFilter = { place: '', status: 'all' };
-  const fresh = new Set(); // id laporan yang baru masuk (disorot sebentar)
 
   $('#side').addEventListener('click', e => {
     const b = e.target.closest('button[data-tab]'); if (!b) return;
@@ -40,13 +39,17 @@ CC.onReady(function () {
       </div>
       <div class="grid g2">
         <div class="card"><div class="card-head"><h3>Laporan terbaru</h3></div>
-          ${rs.slice(0, 5).map(r => `<div class="feed-item${fresh.has(r.id) ? ' row-new' : ''}"><div class="av">${esc(initials(r.userName))}</div><div class="tx"><b>${esc(r.userName)}</b> · ${esc((CC.place(r.placeId) || {}).name || '—')} ${badge(r.level)}
+          ${rs.slice(0, 5).map(r => `<div class="feed-item"><div class="av">${esc(initials(r.userName))}</div><div class="tx"><b>${esc(r.userName)}</b> · ${esc((CC.place(r.placeId) || {}).name || '—')} ${badge(r.level)}
             <div class="small muted">${timeAgo(r.ts)}</div></div></div>`).join('')}</div>
-        <div class="card"><div class="card-head"><h3>Data online</h3></div>
-          <p class="muted">Semua laporan pengguna tersimpan di database Supabase dan tampil di sini. Laporan baru dari pengguna muncul di sini secara realtime, tanpa perlu memuat ulang halaman.</p>
-          <button class="btn btn-ghost btn-sm" id="refreshBtn">Muat ulang sekarang</button></div>
+        <div class="card"><div class="card-head"><h3>Data demo</h3></div>
+          <p class="muted">Aplikasi ini frontend-only: seluruh data tersimpan di browser (localStorage). Atur ulang untuk mengembalikan data contoh awal.</p>
+          <button class="btn btn-danger btn-sm" id="resetBtn">Atur ulang data demo</button></div>
       </div>`);
-    $('#refreshBtn').addEventListener('click', async () => { await CC.refresh(); render(); toast('Data dimuat ulang.'); });
+    $('#resetBtn').addEventListener('click', async () => {
+      if (await confirmBox('Atur ulang data?', 'Semua perubahan akan dihapus dan Anda akan keluar dari sesi.', 'Ya, atur ulang')) {
+        CC.resetDemo(); toast('Data demo dikembalikan.'); setTimeout(() => location.href = 'login.html', 700);
+      }
+    });
   }
 
   /* ================= Lokasi ================= */
@@ -91,9 +94,8 @@ CC.onReady(function () {
           $('#pfName', ov).classList.toggle('invalid', name.length < 3);
           $('#pfAddr', ov).classList.toggle('invalid', !addr);
           if (name.length < 3 || !addr) return false;
-          CC.savePlace({ id: p && p.id, name, category: $('#pCat', ov).value, address: addr, x: +$('#pX', ov).value, y: +$('#pY', ov).value })
-            .then(() => { toast(p ? 'Lokasi diperbarui.' : 'Lokasi ditambahkan.'); close(); render(); })
-            .catch(err => toast(err.message, 'err'));
+          CC.savePlace({ id: p && p.id, name, category: $('#pCat', ov).value, address: addr, x: +$('#pX', ov).value, y: +$('#pY', ov).value });
+          toast(p ? 'Lokasi diperbarui.' : 'Lokasi ditambahkan.'); close(); render();
         } }
       ]
     });
@@ -119,7 +121,7 @@ CC.onReady(function () {
       <p class="small muted">${rs.length} laporan</p>
       <div class="table-wrap"><table>
         <thead><tr><th>Lokasi</th><th>Pelapor</th><th>Level</th><th>Catatan</th><th>Waktu</th><th>Aksi</th></tr></thead>
-        <tbody>${rs.slice(0, 40).map(r => `<tr class="${fresh.has(r.id) ? 'row-new' : ''}" style="${r.hidden ? 'opacity:.55' : ''}">
+        <tbody>${rs.slice(0, 40).map(r => `<tr style="${r.hidden ? 'opacity:.55' : ''}">
           <td><b>${esc((CC.place(r.placeId) || {}).name || '—')}</b></td><td>${esc(r.userName)}</td><td>${badge(r.level)}</td>
           <td style="max-width:240px">${esc(r.note) || '<span class="muted">—</span>'}</td><td class="small">${timeAgo(r.ts)}</td>
           <td><div class="actions"><button class="btn btn-ghost btn-sm" data-hide="${r.id}">${r.hidden ? 'Tampilkan' : 'Sembunyikan'}</button>
@@ -163,29 +165,4 @@ CC.onReady(function () {
   }
 
   render();
-
-  /* ---- realtime: laporan baru / diubah / dihapus langsung tampil ---- */
-  const liveEl = $('#liveStat');
-  const LIVE_TXT = { live: ['on', 'Realtime aktif'], connecting: ['wait', 'Menyambung…'], offline: ['off', 'Terputus, mencoba lagi…'], off: ['off', 'Realtime nonaktif'] };
-  function showLive() {
-    const [cls, txt] = LIVE_TXT[CC.liveStatus()] || LIVE_TXT.off;
-    liveEl.className = 'live-stat ' + cls; liveEl.innerHTML = '<i></i>' + txt;
-  }
-  let timer = null;
-  CC.onChange(ev => {
-    if (ev.type === 'status') { showLive(); return; }
-    if (ev.type === 'report' && ev.action === 'insert') {
-      const r = ev.report;
-      fresh.add(r.id); setTimeout(() => fresh.delete(r.id), 8000);
-      toast('Laporan baru: ' + r.userName + ' di ' + ((CC.place(r.placeId) || {}).name || '—') + ' (' + CC.LEVELS[r.level].label + ')');
-    }
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      const ae = document.activeElement;
-      if ($('.overlay')) return;                                   // jangan ganggu form/dialog yang terbuka
-      if (tab === 'users' && ae && ae.tagName === 'SELECT') return; // jangan tutup dropdown yang sedang dipakai
-      render();
-    }, 250);
-  });
-  showLive();
 });
