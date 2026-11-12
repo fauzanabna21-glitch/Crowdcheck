@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
           ${rs.slice(0, 5).map(r => `<div class="feed-item"><div class="av">${esc(initials(r.userName))}</div><div class="tx"><b>${esc(r.userName)}</b> · ${esc((CC.place(r.placeId) || {}).name || '—')} ${badge(r.level)}
             <div class="small muted">${timeAgo(r.ts)}</div></div></div>`).join('')}</div>
         <div class="card"><div class="card-head"><h3>Data demo</h3></div>
-          <p class="muted">Aplikasi ini frontend-only: seluruh data tersimpan di browser (localStorage). Atur ulang untuk mengembalikan data contoh awal.</p>
+          <p class="muted">Data tersimpan di browser ini (localStorage), jadi hanya laporan dari browser yang sama yang terlihat. Laporan baru dari tab lain muncul otomatis, tanpa refresh. Atur ulang untuk mengembalikan data contoh awal.</p>
           <button class="btn btn-danger btn-sm" id="resetBtn">Atur ulang data demo</button></div>
       </div>`);
     $('#resetBtn').addEventListener('click', async () => {
@@ -163,6 +163,22 @@ document.addEventListener('DOMContentLoaded', function () {
       CC.updateUser(u.id, { active: !u.active }); toast(u.active ? 'Pengguna dinonaktifkan.' : 'Pengguna diaktifkan.'); users();
     }));
   }
+
+  /* ---- laporan baru / perubahan dari tab lain langsung tampil ---- */
+  let timer = null;
+  CC.onChange(ev => {
+    if (ev.type === 'report' && ev.action === 'insert') {
+      const r = ev.report;
+      toast('Laporan baru: ' + r.userName + ' di ' + ((CC.place(r.placeId) || {}).name || '—') + ' (' + CC.LEVELS[r.level].label + ')');
+    }
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      if ($('.overlay')) return;                                   // jangan ganggu form/dialog yang terbuka
+      const ae = document.activeElement;
+      if (ae && ae.tagName === 'SELECT' && ae.closest('#panel')) return; // jangan tutup dropdown yang sedang dipakai
+      render();
+    }, 250);
+  });
 
   render();
 });

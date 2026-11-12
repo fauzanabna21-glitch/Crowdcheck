@@ -91,4 +91,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   render();
   setInterval(render, 30000); // segarkan tiap 30 detik
+  let t = null;
+  CC.onChange(() => { clearTimeout(t); t = setTimeout(render, 250); }); // laporan baru dari tab lain
 });

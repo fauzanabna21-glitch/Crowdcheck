@@ -131,18 +131,38 @@
     try { db = JSON.parse(localStorage.getItem(DB_KEY)); } catch (e) { db = null; }
     if (!db || !db.places) { db = seed(); save(); }
   }
+  // Baca ulang data terbaru dari penyimpanan (dipakai sebelum menulis agar tidak menimpa perubahan tab lain)
+  function reload() {
+    try { const d = JSON.parse(localStorage.getItem(DB_KEY)); if (d && d.places && d.reports && d.users) db = d; } catch (e) { /* pakai data di memori */ }
+  }
   function save() {
     try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch (e) { /* storage penuh/diblokir */ }
   }
+  /* ---------- sinkron antar tab ----------
+     Event 'storage' hanya terkirim ke tab LAIN di browser yang sama. Jadi saat user
+     mengirim laporan di satu tab, tab admin langsung menerimanya tanpa refresh. */
+  const listeners = [];
+  function emit(ev) { listeners.slice().forEach(fn => { try { fn(ev); } catch (e) { if (global.console) console.error(e); } }); }
+  function onChange(fn) { listeners.push(fn); return () => { const i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); }; }
+  global.addEventListener('storage', e => {
+    if (e.key !== null && e.key !== DB_KEY && e.key !== SESSION_KEY) return;
+    const before = new Set(db.reports.map(r => r.id));
+    reload();
+    db.reports.filter(r => !before.has(r.id)).forEach(r => emit({ type: 'report', action: 'insert', report: r }));
+    emit({ type: 'sync' });
+  });
+
   function resetDemo() { db = seed(); save(); logout(); }
 
   /* ---------- auth ---------- */
   function currentUser() {
+    reload();
     let id = null;
     try { id = localStorage.getItem(SESSION_KEY); } catch (e) { /* ignore */ }
     return id ? db.users.find(u => u.id === id && u.active) || null : null;
   }
   function login(email, pass) {
+    reload();
     const u = db.users.find(x => x.email.toLowerCase() === String(email).trim().toLowerCase());
     if (!u || u.pass !== hash(pass)) return { ok: false, msg: 'Email atau kata sandi salah.' };
     if (!u.active) return { ok: false, msg: 'Akun Anda dinonaktifkan oleh admin.' };
@@ -151,6 +171,7 @@
   }
   function logout() { try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* ignore */ } }
   function register(name, email, pass) {
+    reload();
     if (db.users.some(u => u.email.toLowerCase() === email.trim().toLowerCase()))
       return { ok: false, msg: 'Email sudah terdaftar. Silakan masuk.' };
     const u = { id: 'u' + db.seq.user++, name: name.trim(), email: email.trim(), pass: hash(pass), role: 'user', active: true, joined: Date.now() };
@@ -194,12 +215,14 @@
   const users = () => db.users.slice();
 
   function addReport(r) {
+    reload();
     const rep = Object.assign({ id: 'r' + db.seq.report++, ts: Date.now(), hidden: false }, r);
     db.reports.unshift(rep); save(); return rep;
   }
-  function updateReport(id, patch) { const r = db.reports.find(x => x.id === id); if (r) { Object.assign(r, patch); save(); } }
-  function deleteReport(id) { db.reports = db.reports.filter(r => r.id !== id); save(); }
+  function updateReport(id, patch) { reload(); const r = db.reports.find(x => x.id === id); if (r) { Object.assign(r, patch); save(); } }
+  function deleteReport(id) { reload(); db.reports = db.reports.filter(r => r.id !== id); save(); }
   function savePlace(data) {
+    reload();
     if (data.id) {
       Object.assign(place(data.id), data);
     } else {
@@ -209,10 +232,11 @@
     save();
   }
   function deletePlace(id) {
+    reload();
     db.places = db.places.filter(p => p.id !== id);
     db.reports = db.reports.filter(r => r.placeId !== id); save();
   }
-  function updateUser(id, patch) { const u = db.users.find(x => x.id === id); if (u) { Object.assign(u, patch); save(); } }
+  function updateUser(id, patch) { reload(); const u = db.users.find(x => x.id === id); if (u) { Object.assign(u, patch); save(); } }
 
   load();
 
@@ -222,6 +246,6 @@
     currentUser, login, logout, register,
     places, place, reports, visibleReports, users,
     crowd, bestWindow, peakHour,
-    addReport, updateReport, deleteReport, savePlace, deletePlace, updateUser, resetDemo
+    addReport, updateReport, deleteReport, savePlace, deletePlace, updateUser, resetDemo, onChange
   });
 })(window);
